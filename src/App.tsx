@@ -89,12 +89,15 @@ const nseConfig: ColumnConfig<INse>[] = [
 function App() {
   const [nseData, setNseData] = useState<INse[] | null>(null);
   const [selectedSymbol] = useState<Symbol>(Symbol.BANKNIFTY);
+  const [date, setDate] = useState<string>(
+    new Date().toISOString().substring(0, 10)
+  );
 
   useEffect(() => {
     const fetchR = async () => {
-//       const url = import.meta.env.VITE_API_URL;
-      const url = process.env.REACT_APP_API_URL;
-      const res = await axios.get(url + "/load-json/2023-07-30.json");
+      //       const url = import.meta.env.VITE_API_URL;
+      const url = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
+      const res = await axios.get(`${url}/load-json/${date}.json`);
       const nseData: INse[] = res.data;
 
       setNseData(nseData);

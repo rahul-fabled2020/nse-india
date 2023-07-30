@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/nse-india/static/css/main.b06545ed.css",
-    "main.js": "/nse-india/static/js/main.5bc81083.js",
+    "main.js": "/nse-india/static/js/main.1212305e.js",
     "static/js/787.185d3671.chunk.js": "/nse-india/static/js/787.185d3671.chunk.js",
     "index.html": "/nse-india/index.html",
     "main.b06545ed.css.map": "/nse-india/static/css/main.b06545ed.css.map",
-    "main.5bc81083.js.map": "/nse-india/static/js/main.5bc81083.js.map",
+    "main.1212305e.js.map": "/nse-india/static/js/main.1212305e.js.map",
     "787.185d3671.chunk.js.map": "/nse-india/static/js/787.185d3671.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.b06545ed.css",
-    "static/js/main.5bc81083.js"
+    "static/js/main.1212305e.js"
   ]
 }

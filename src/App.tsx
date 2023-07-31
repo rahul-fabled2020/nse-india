@@ -1,5 +1,5 @@
 import { ReactNode, useEffect, useState } from "react";
-
+import DatePicker from "react-datepicker";
 import "./App.css";
 import axios from "axios";
 
@@ -37,6 +37,10 @@ function formatDate(date: number | Date | string) {
 }
 
 const splitIntoChunks = <T,>(array: T[], chunkSize: number = 10) => {
+  if (!array) {
+    return [];
+  }
+
   const chunks = [];
 
   for (let i = 0; i < array.length; i += chunkSize) {
@@ -104,7 +108,30 @@ function App() {
     };
 
     fetchR();
-  }, []);
+  }, [date]);
+
+  const renderDatePicker = () => {
+    return (
+      <div
+        className="date-wrapper"
+        style={{
+          marginTop: 12,
+          marginBottom: 12,
+          display: "flex",
+          gap: 12,
+          alignItems: "center",
+        }}
+      >
+        Date:
+        <DatePicker
+          selected={new Date(date)}
+          onChange={(newDate) =>
+            setDate((newDate || new Date()).toISOString().substring(0, 10))
+          }
+        />
+      </div>
+    );
+  };
 
   const renderChunk = (chunk: INse[]) => {
     let chunkTotalCE = 0;
@@ -154,11 +181,21 @@ function App() {
     );
   };
 
+  if (!nseData?.filter?.((item) => item.underlying === selectedSymbol)) {
+    return (
+      <>
+        {renderDatePicker()}
+        <div>No Data for the date: {date}</div>
+      </>
+    );
+  }
+
   return (
     <>
+      {renderDatePicker()}
       {nseData &&
         splitIntoChunks(
-          nseData.filter((item) => item.underlying === selectedSymbol)
+          nseData?.filter?.((item) => item.underlying === selectedSymbol)
         ).map((chunk, index) => (
           <div key={index} className="chunk">
             {renderChunk(chunk)}

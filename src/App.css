@@ -50,3 +50,8 @@ body {
   font-size: 18px;
   color: maroon;
 }
+
+input {
+  padding: 8px;
+  font-size: 16px;
+}

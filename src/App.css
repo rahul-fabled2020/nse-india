@@ -4,11 +4,18 @@
 }
 
 body {
+  color: #000;
+}
+
+.wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #fcc;
-  color: #000;
+  background-color: #ddd;
+}
+
+.container {
+  max-width: 1600px;
 }
 
 .table {

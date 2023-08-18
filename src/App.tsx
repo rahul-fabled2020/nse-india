@@ -82,27 +82,24 @@ function App() {
     );
   };
 
-  if (!nseData?.filter?.((item) => item.underlying === selectedSymbol)) {
-    return (
-      <>
-        {datePicker}
-        <div>No Data for the date: {date}</div>
-      </>
-    );
-  }
-
   return (
-    <>
-      {datePicker}
-      {nseData &&
-        splitIntoChunks(
-          nseData?.filter?.((item) => item.underlying === selectedSymbol)
-        ).map((chunk, index) => (
-          <div key={index} className="chunk">
-            {renderChunk(chunk)}
-          </div>
-        ))}
-    </>
+    <div className="wrapper">
+      <div className="container">
+        {datePicker}
+        {!nseData?.filter?.((item) => item.underlying === selectedSymbol) ? (
+          <div>No Data for the date: {date}</div>
+        ) : (
+          nseData &&
+          splitIntoChunks(
+            nseData?.filter?.((item) => item.underlying === selectedSymbol)
+          ).map((chunk, index) => (
+            <div key={index} className="chunk">
+              {renderChunk(chunk)}
+            </div>
+          ))
+        )}
+      </div>
+    </div>
   );
 }
 

@@ -7,11 +7,27 @@ body {
   color: #000;
 }
 
+.header {
+  display: flex;
+  align-items: center;
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  background-color: aliceblue;
+  width: 100%;
+  gap: 10;
+}
+
+.header > :first-child {
+  margin-right: 12px;
+}
+
 .wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: #ddd;
+  flex-direction: column;
 }
 
 .container {

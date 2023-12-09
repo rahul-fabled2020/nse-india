@@ -15,14 +15,25 @@ function App() {
   const [date, setDate] = useState<string>(
     new Date().toISOString().substring(0, 10)
   );
+  const [chunkSize, setChunkSize] = useState<number>(10);
 
   useEffect(() => {
     (async () => {
       const nseData: INse[] = await fetchNseDataByDate(date);
 
       setNseData(nseData);
+      setTimeout(() => {
+        window.scrollTo(0, document.body.scrollHeight);
+      }, 0);
     })();
   }, [date]);
+  console.log("Render");
+
+  const handleSelection: React.ChangeEventHandler<HTMLSelectElement> = (
+    event
+  ) => {
+    setChunkSize(Number(event.target.value));
+  };
 
   const datePicker = (
     <DatePickerWrapper
@@ -84,14 +95,32 @@ function App() {
 
   return (
     <div className="wrapper">
-      <div className="container">
+      <div className="header">
         {datePicker}
+        <select
+          onChange={handleSelection}
+          style={{ padding: 8 }}
+          value={chunkSize}
+        >
+          <option disabled selected>
+            Select Number of Records To Group
+          </option>
+          {Array(100)
+            .fill(1)
+            .map((n, i) => n + i)
+            .map((item) => (
+              <option value={item}>{item}</option>
+            ))}
+        </select>
+      </div>
+      <div className="container">
         {!nseData?.filter?.((item) => item.underlying === selectedSymbol) ? (
           <div>No Data for the date: {date}</div>
         ) : (
           nseData &&
           splitIntoChunks(
-            nseData?.filter?.((item) => item.underlying === selectedSymbol)
+            nseData?.filter?.((item) => item.underlying === selectedSymbol),
+            chunkSize
           ).map((chunk, index) => (
             <div key={index} className="chunk">
               {renderChunk(chunk)}

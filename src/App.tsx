@@ -10,6 +10,8 @@ import DatePickerWrapper from "./components/common/DatePicker";
 
 import "./App.css";
 
+const pollInterval = 1 * 1000 * 60; // milliseconds
+
 function App() {
   const [nseData, setNseData] = useState<INse[] | null>(null);
   const [selectedSymbol] = useState<TickerSymbol>(TickerSymbol.BANKNIFTY);
@@ -19,14 +21,20 @@ function App() {
   const [chunkSize, setChunkSize] = useState<number>(2);
 
   useEffect(() => {
-    (async () => {
+    async function handleNSEDataFetch() {
       const nseData: INse[] = await fetchNseDataByDate(date);
 
       setNseData(nseData);
       setTimeout(() => {
         window.scrollTo(0, document.body.scrollHeight);
       }, 0);
-    })();
+    }
+
+    handleNSEDataFetch();
+
+    const timer = setInterval(handleNSEDataFetch, pollInterval);
+
+    return () => clearInterval(timer);
   }, [date]);
 
   const filteredNSEData = useMemo(() => {
@@ -185,14 +193,13 @@ function App() {
           style={{ padding: 8 }}
           value={chunkSize}
         >
-          <option disabled selected>
-            Select Number of Records To Group
-          </option>
           {Array(100)
             .fill(1)
             .map((n, i) => n + i)
             .map((item) => (
-              <option value={item}>{item}</option>
+              <option key={item} value={item}>
+                {item}
+              </option>
             ))}
         </select>
       </div>

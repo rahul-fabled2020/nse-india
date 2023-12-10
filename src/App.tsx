@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-import { INse } from "./types";
 import { nseConfig } from "./config";
+import { getRatio } from "./utils/number";
 import { splitIntoChunks } from "./utils";
 import { TickerSymbol } from "./constants";
+import { IChunkSummary, INse } from "./types";
 import { fetchNseDataByDate } from "./services/nse";
 import DatePickerWrapper from "./components/common/DatePicker";
 
@@ -15,7 +16,7 @@ function App() {
   const [date, setDate] = useState<string>(
     new Date().toISOString().substring(0, 10)
   );
-  const [chunkSize, setChunkSize] = useState<number>(10);
+  const [chunkSize, setChunkSize] = useState<number>(2);
 
   useEffect(() => {
     (async () => {
@@ -27,7 +28,12 @@ function App() {
       }, 0);
     })();
   }, [date]);
-  console.log("Render");
+
+  const filteredNSEData = useMemo(() => {
+    return (
+      nseData?.filter?.((item) => item.underlying === selectedSymbol) || []
+    );
+  }, [nseData, selectedSymbol]);
 
   const handleSelection: React.ChangeEventHandler<HTMLSelectElement> = (
     event
@@ -45,9 +51,34 @@ function App() {
     />
   );
 
-  const renderChunk = (chunk: INse[]) => {
+  const getChunkSummary = (chunk?: INse[] | null): IChunkSummary | null => {
     let chunkTotalCE = 0;
     let chunkTotalPE = 0;
+
+    if (!chunk) {
+      return null;
+    }
+
+    chunk?.forEach((item) => {
+      chunkTotalCE += item.ceCOITotal;
+      chunkTotalPE += item.peCOITotal;
+    });
+
+    return {
+      ceTotal: chunkTotalCE,
+      peTotal: chunkTotalPE,
+      ceByPe: getRatio(chunkTotalCE, chunkTotalPE),
+      peByCe: getRatio(chunkTotalPE, chunkTotalCE),
+    };
+  };
+
+  const renderChunk = (chunk: INse[], previousChunk: INse[] | null) => {
+    const chunkSummary = getChunkSummary(chunk);
+    const previousChunkSummary = getChunkSummary(previousChunk);
+    const ceDifference =
+      (chunkSummary?.ceTotal || 0) - (previousChunkSummary?.ceTotal || 0);
+    const peDifference =
+      (chunkSummary?.peTotal || 0) - (previousChunkSummary?.peTotal || 0);
 
     return (
       <div className="table">
@@ -59,9 +90,6 @@ function App() {
           ))}
         </div>
         {chunk?.map((item) => {
-          chunkTotalCE += item.ceCOITotal;
-          chunkTotalPE += item.peCOITotal;
-
           return (
             <div className="row" key={item.timestamp}>
               {nseConfig.map((col) =>
@@ -80,13 +108,68 @@ function App() {
         })}
 
         <div className="chunk-row">
-          <div>Total CE: {chunkTotalCE}</div>
-          <div>Total PE: {chunkTotalPE}</div>
+          <h2>Current Group Summary</h2>
           <div>
-            CE / PE: {chunkTotalPE === 0 ? "-" : chunkTotalCE / chunkTotalPE}
+            <span className="label-header">Total CE:</span>{" "}
+            {chunkSummary?.ceTotal}
           </div>
           <div>
-            PE / CE: {chunkTotalCE === 0 ? "-" : chunkTotalPE / chunkTotalCE}
+            <span className="label-header">Total PE:</span>{" "}
+            {chunkSummary?.peTotal}
+          </div>
+          <div>
+            <span className="label-header">CE / PE:</span>{" "}
+            {chunkSummary?.ceByPe || "-"}
+          </div>
+          <div>
+            <span className="label-header">PE / CE:</span>{" "}
+            {chunkSummary?.peByCe || "-"}
+          </div>
+        </div>
+
+        <div className="chunk-row">
+          <h2>Previous Group Summary</h2>
+          <div>
+            <span className="label-header">Total CE:</span>
+            {previousChunkSummary?.ceTotal}
+          </div>
+          <div>
+            <span className="label-header">Total PE:</span>
+            {previousChunkSummary?.peTotal}
+          </div>
+          <div>
+            <span className="label-header">CE / PE:</span>
+            {previousChunkSummary?.ceByPe || "-"}
+          </div>
+          <div>
+            <span className="label-header">PE / CE:</span>
+            {previousChunkSummary?.peByCe || "-"}
+          </div>
+          <div className="chunk-comparison">
+            <div>
+              <span className="label-header">
+                Current CE Total - Previous CE Total:
+              </span>
+              {ceDifference}
+            </div>
+            <div>
+              <span className="label-header">
+                Current PE Total - Previous PE Total:
+              </span>
+              {peDifference}
+            </div>
+            <div>
+              <span className="label-header">
+                CE Difference / PE Difference:
+              </span>
+              {getRatio(ceDifference, peDifference) || "-"}
+            </div>
+            <div>
+              <span className="label-header">
+                PE Difference / CE Difference:
+              </span>
+              {getRatio(peDifference, ceDifference) || "-"}
+            </div>
           </div>
         </div>
       </div>
@@ -113,19 +196,19 @@ function App() {
             ))}
         </select>
       </div>
+      <h1>NSE Option Chain Data {selectedSymbol && `(${selectedSymbol})`}</h1>
       <div className="container">
-        {!nseData?.filter?.((item) => item.underlying === selectedSymbol) ? (
+        {!filteredNSEData.length ? (
           <div>No Data for the date: {date}</div>
         ) : (
-          nseData &&
-          splitIntoChunks(
-            nseData?.filter?.((item) => item.underlying === selectedSymbol),
-            chunkSize
-          ).map((chunk, index) => (
-            <div key={index} className="chunk">
-              {renderChunk(chunk)}
-            </div>
-          ))
+          !!filteredNSEData.length &&
+          splitIntoChunks(filteredNSEData, chunkSize).map(
+            (chunk, index, chunks) => (
+              <div key={index} className="chunk">
+                {renderChunk(chunk, index === 0 ? null : chunks[index - 1])}
+              </div>
+            )
+          )
         )}
       </div>
     </div>

@@ -45,19 +45,12 @@ input {
   padding: 12px 0;
 }
 
-.table {
-  display: flex;
-  flex-direction: column;
-}
-
-.row {
-  display: flex;
-  gap: 10;
+.table-wrapper {
+  overflow-x:auto
 }
 
 .column {
-  padding: 12px;
-  width: 100%;
+  padding: 4px;
 }
 
 .column-header {
@@ -81,7 +74,7 @@ input {
 .chunk-row {
   margin: 12px 0;
   font-weight: bold;
-  font-size: 18px;
+  font-size: 14px;
   color: maroon;
   border: 1px dotted gray;
   padding: 12px;
@@ -100,4 +93,46 @@ margin-top: 12px;
 .label-header {
   color: #111;
   margin-right: 8px;
+}
+
+@media only screen and (max-width: 1600px) {
+  .container {
+    max-width: 1400px;
+  }
+}
+
+@media only screen and (max-width: 1400px) {
+  .container {
+    max-width: 1200px;
+  }
+}
+
+@media only screen and (max-width: 1200px) {
+  .container {
+    max-width: 800px;
+  }
+}
+
+@media only screen and (max-width: 800px) {
+  .container {
+    max-width: 600px;
+  }
+}
+
+@media only screen and (max-width: 800px) {
+  .container {
+    max-width: 600px;
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  .container {
+    max-width: 500px;
+  }
+}
+
+@media only screen and (max-width: 500px) {
+  .container {
+    max-width: 400px;
+  }
 }

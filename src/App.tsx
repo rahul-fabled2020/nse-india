@@ -89,95 +89,82 @@ function App() {
       (chunkSummary?.peTotal || 0) - (previousChunkSummary?.peTotal || 0);
 
     return (
-      <div className="table">
-        <div className="row">
-          {nseConfig.map((col) => (
-            <div key={col.label} className="column column-header">
-              {col.label}
-            </div>
-          ))}
+      <div className="table-wrapper">
+        <table className="table">
+          <tr className="row">
+            {nseConfig.map((col) => (
+              <td key={col.label} className="column column-header">
+                {col.label}
+              </td>
+            ))}
+          </tr>
+          {chunk?.map((item) => {
+            return (
+              <tr className="row" key={item.timestamp}>
+                {nseConfig.map((col) =>
+                  col.render ? (
+                    <td key={col.label} className="column">
+                      {col.render(item)}
+                    </td>
+                  ) : (
+                    <td key={col.label} className="column">
+                      {item[col.key || "timestamp"]}
+                    </td>
+                  )
+                )}
+              </tr>
+            );
+          })}
+        </table>
+        <div className="chunk-row">
+          <table className="table">
+            <tr className="row">
+              <td className="column column-header">Stat</td>
+              <td className="column column-header">Current Group Summary</td>
+              <td className="column column-header">Previous Group Summary</td>
+              <td className="column column-header">Difference</td>
+            </tr>
+            <tr className="row">
+              <td className="column column-header">Total CE</td>
+              <td className="column">{chunkSummary?.ceTotal || "-"}</td>
+              <td className="column">{previousChunkSummary?.ceTotal || "-"}</td>
+              <td className="column">
+                {chunkSummary?.ceTotal ||
+                  0 - (previousChunkSummary?.ceTotal || 0)}
+              </td>
+            </tr>
+            <tr className="row">
+              <td className="column column-header">Total PE</td>
+              <td className="column">{chunkSummary?.peTotal || "-"}</td>
+              <td className="column">{previousChunkSummary?.peTotal || "-"}</td>
+              <td className="column">
+                {chunkSummary?.peTotal ||
+                  0 - (previousChunkSummary?.peTotal || 0)}
+              </td>
+            </tr>
+            <tr className="row">
+              <td className="column column-header">CE / PE</td>
+              <td className="column">{chunkSummary?.ceByPe || "-"}</td>
+              <td className="column">{previousChunkSummary?.ceByPe || "-"}</td>
+              <td className="column">-</td>
+            </tr>
+            <tr className="row">
+              <td className="column column-header">PE / CE</td>
+              <td className="column">{chunkSummary?.peByCe || "-"}</td>
+              <td className="column">{previousChunkSummary?.peByCe || "-"}</td>
+              <td className="column">-</td>
+            </tr>
+          </table>
         </div>
-        {chunk?.map((item) => {
-          return (
-            <div className="row" key={item.timestamp}>
-              {nseConfig.map((col) =>
-                col.render ? (
-                  <div key={col.label} className="column">
-                    {col.render(item)}
-                  </div>
-                ) : (
-                  <div key={col.label} className="column">
-                    {item[col.key || "timestamp"]}
-                  </div>
-                )
-              )}
-            </div>
-          );
-        })}
 
         <div className="chunk-row">
-          <h2>Current Group Summary</h2>
           <div>
-            <span className="label-header">Total CE:</span>{" "}
-            {chunkSummary?.ceTotal}
+            <span className="label-header">CE Difference / PE Difference:</span>
+            {getRatio(ceDifference, peDifference) || "-"}
           </div>
           <div>
-            <span className="label-header">Total PE:</span>{" "}
-            {chunkSummary?.peTotal}
-          </div>
-          <div>
-            <span className="label-header">CE / PE:</span>{" "}
-            {chunkSummary?.ceByPe || "-"}
-          </div>
-          <div>
-            <span className="label-header">PE / CE:</span>{" "}
-            {chunkSummary?.peByCe || "-"}
-          </div>
-        </div>
-
-        <div className="chunk-row">
-          <h2>Previous Group Summary</h2>
-          <div>
-            <span className="label-header">Total CE:</span>
-            {previousChunkSummary?.ceTotal}
-          </div>
-          <div>
-            <span className="label-header">Total PE:</span>
-            {previousChunkSummary?.peTotal}
-          </div>
-          <div>
-            <span className="label-header">CE / PE:</span>
-            {previousChunkSummary?.ceByPe || "-"}
-          </div>
-          <div>
-            <span className="label-header">PE / CE:</span>
-            {previousChunkSummary?.peByCe || "-"}
-          </div>
-          <div className="chunk-comparison">
-            <div>
-              <span className="label-header">
-                Current CE Total - Previous CE Total:
-              </span>
-              {ceDifference}
-            </div>
-            <div>
-              <span className="label-header">
-                Current PE Total - Previous PE Total:
-              </span>
-              {peDifference}
-            </div>
-            <div>
-              <span className="label-header">
-                CE Difference / PE Difference:
-              </span>
-              {getRatio(ceDifference, peDifference) || "-"}
-            </div>
-            <div>
-              <span className="label-header">
-                PE Difference / CE Difference:
-              </span>
-              {getRatio(peDifference, ceDifference) || "-"}
-            </div>
+            <span className="label-header">PE Difference / CE Difference:</span>
+            {getRatio(peDifference, ceDifference) || "-"}
           </div>
         </div>
       </div>
